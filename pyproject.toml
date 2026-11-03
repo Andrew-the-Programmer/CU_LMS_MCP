@@ -5,6 +5,7 @@ description = "MCP server exposing the Central University LMS API"
 authors = ["AndrewCh <andrey.chikin1223@gmail.com>"]
 readme = "README.md"
 packages = [{ include = "cu_lms_mcp" }]
+include = ["cu_lms_mcp/MCP_DOCS.md"]
 repository = "https://github.com/Andrew-the-Programmer/CU_LMS_MCP"
 
 [tool.poetry.dependencies]

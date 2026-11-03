@@ -2,15 +2,10 @@
 
 from __future__ import annotations
 
-from typing import cast
-
-import httpx
 from mcp.server.mcpserver import MCPServer
-from mcp.server.mcpserver.exceptions import ToolError
-from pydantic import BaseModel
 
+from . import utils
 from .config import get_settings
-from .models_errors import ERROR_RESPONSES, BaseProblemError
 from .models_params import (
     ContentDownloadLinkParams,
     ListStudentCoursesParams,
@@ -32,37 +27,19 @@ from .models_scalars import CourseId, CourseThemeId, LongreadId, TaskId
 mcp = MCPServer("CU LMS Bridge")
 
 
-def _raise_for_lms_error(response: httpx.Response) -> None:
-    """Parse an error body into a typed problem detail and raise ToolError."""
-    if response.is_success:
-        return
-    try:
-        payload = cast(object, response.json())
-    except ValueError:
-        payload = {
-            "title": response.reason_phrase,
-            "status": response.status_code,
-        }
-    model_cls = ERROR_RESPONSES.get(response.status_code, BaseProblemError)
-    problem = model_cls.model_validate(payload)
-    raise ToolError(problem.model_dump_json(by_alias=True, exclude_none=True))
+@mcp.tool()
+async def get_lms_guide() -> str:
+    """Return the CU LMS usage guide (read-only).
 
+    Call this first when you need to map a student's wording to API
+    concepts: `theme` is a week, `longread` is an unnamed block container,
+    `coding` is homework, and `questions` is a test. The guide also explains
+    late days, ID rules, and the typical tool workflow.
 
-async def _get_json(
-    path: str,
-    *,
-    params: BaseModel | None = None,
-) -> dict[str, object]:
-    settings = get_settings()
-    query = params.model_dump(exclude_none=True) if params is not None else None
-    async with httpx.AsyncClient(timeout=settings.timeout) as client:
-        response = await client.get(
-            f"{settings.base_url}{path}",
-            headers=settings.auth_headers,
-            params=query,
-        )
-        _raise_for_lms_error(response)
-        return cast(dict[str, object], response.json())
+    Returns:
+        str: Markdown guide loaded from `MCP_DOCS.md` at server startup.
+    """
+    return utils.MCP_DOCS
 
 
 @mcp.tool()
@@ -76,7 +53,7 @@ async def get_student_profile() -> CurrentStudentResponse:
         CurrentStudentResponse: student identity and study metadata.
     """
     return CurrentStudentResponse.model_validate(
-        await _get_json("/students/me")
+        await utils.get_json("/students/me")
     )
 
 
@@ -94,7 +71,7 @@ async def list_student_courses(
         ListStudentCoursesResponse: `items` plus `paging` metadata.
     """
     return ListStudentCoursesResponse.model_validate(
-        await _get_json("/courses/student", params=params)
+        await utils.get_json("/courses/student", params=params)
     )
 
 
@@ -112,7 +89,7 @@ async def get_course_summary(course_id: CourseId) -> CourseSummaryByIdResponse:
         CourseSummaryByIdResponse: course metadata and settings.
     """
     return CourseSummaryByIdResponse.model_validate(
-        await _get_json(f"/courses/{course_id}")
+        await utils.get_json(f"/courses/{course_id}")
     )
 
 
@@ -138,7 +115,7 @@ async def get_course_overview(
         CourseOverviewByIdResponse: themes (weeks) with nested longreads.
     """
     return CourseOverviewByIdResponse.model_validate(
-        await _get_json(f"/courses/{course_id}/overview")
+        await utils.get_json(f"/courses/{course_id}/overview")
     )
 
 
@@ -159,7 +136,7 @@ async def get_course_theme_summary(
         CourseThemeSummaryByIdResponse: week metadata and sections.
     """
     return CourseThemeSummaryByIdResponse.model_validate(
-        await _get_json(f"/themes/{theme_id}")
+        await utils.get_json(f"/themes/{theme_id}")
     )
 
 
@@ -181,7 +158,7 @@ async def get_longread_summary(
         LongreadSummaryByIdResponse: section metadata.
     """
     return LongreadSummaryByIdResponse.model_validate(
-        await _get_json(f"/longreads/{longread_id}")
+        await utils.get_json(f"/longreads/{longread_id}")
     )
 
 
@@ -213,7 +190,7 @@ async def get_longread_materials(
         LongreadMaterialsByIdResponse: `items` plus `paging` metadata.
     """
     return LongreadMaterialsByIdResponse.model_validate(
-        await _get_json(
+        await utils.get_json(
             f"/longreads/{longread_id}/materials",
             params=params,
         )
@@ -235,7 +212,9 @@ async def get_task(task_id: TaskId) -> TaskByIdResponse:
     Returns:
         TaskByIdResponse: task state, score, exercise, and solution.
     """
-    return TaskByIdResponse.model_validate(await _get_json(f"/tasks/{task_id}"))
+    return TaskByIdResponse.model_validate(
+        await utils.get_json(f"/tasks/{task_id}")
+    )
 
 
 @mcp.tool()
@@ -259,7 +238,7 @@ async def generate_content_download_link(
         GenerateContentDownloadLinkResponse: a downloadable URL.
     """
     return GenerateContentDownloadLinkResponse.model_validate(
-        await _get_json("/content/download-link", params=params)
+        await utils.get_json("/content/download-link", params=params)
     )
 
 
