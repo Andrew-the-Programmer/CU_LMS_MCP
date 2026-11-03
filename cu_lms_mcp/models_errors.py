@@ -5,13 +5,20 @@ from typing import Annotated, ClassVar
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
-from .models_responses import CuBaseModel
 from .models_scalars import TraceId
 
 HttpStatus = Annotated[int, Field(ge=100, le=599)]
 
 
-class BaseProblemError(BaseModel):
+class BaseError(BaseModel):
+    model_config: ClassVar[ConfigDict] = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        extra="allow",
+    )
+
+
+class BaseProblemError(BaseError):
     type: str | None = None
     title: str
     status: HttpStatus
@@ -24,20 +31,20 @@ class BaseProblemError(BaseModel):
     )
 
 
-class BaseBadRequestError(CuBaseModel):
+class BaseBadRequestError(BaseError):
     title: str
     status: HttpStatus
     errors: dict[str, list[str]]
 
 
-class BaseUnauthorizedError(CuBaseModel):
+class BaseUnauthorizedError(BaseError):
     type: str | None = None
     title: str
     status: HttpStatus
     trace_id: TraceId
 
 
-class BaseForbiddenError(CuBaseModel):
+class BaseForbiddenError(BaseError):
     type: str | None = None
     title: str
     status: HttpStatus
@@ -46,8 +53,8 @@ class BaseForbiddenError(CuBaseModel):
     trace_id: TraceId
 
 
-class BaseNotFoundError(CuBaseModel):
-    title: str
+class BaseNotFoundError(BaseError):
+    title: str | None = None
     status: HttpStatus
     detail: str | None = None
     instance: str | None = None
@@ -55,16 +62,9 @@ class BaseNotFoundError(CuBaseModel):
     trace_id: TraceId
 
 
-DefaultError = BaseProblemError
-BadRequestError = BaseBadRequestError
-UnauthorizedError = BaseUnauthorizedError
-ForbiddenError = BaseForbiddenError
-NotFoundError = BaseNotFoundError
-
-
-ERROR_RESPONSES: dict[int, type[CuBaseModel]] = {
-    400: BadRequestError,
-    401: UnauthorizedError,
-    403: ForbiddenError,
-    404: NotFoundError,
+ERROR_RESPONSES: dict[int, type[BaseError]] = {
+    400: BaseBadRequestError,
+    401: BaseUnauthorizedError,
+    403: BaseForbiddenError,
+    404: BaseNotFoundError,
 }

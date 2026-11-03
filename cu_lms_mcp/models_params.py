@@ -19,6 +19,14 @@ OffsetQuery = Annotated[
     ),
 ]
 
+VersionType = Annotated[
+    str,
+    Field(
+        pattern=r"^[0-9a-f]{8}$",
+        description="Material content revision identifier.",
+    ),
+]
+
 
 class ListStudentCoursesParams(CuBaseModel):
     limit: LimitQuery = 25
@@ -36,8 +44,4 @@ class LongreadMaterialsParams(CuBaseModel):
 
 class ContentDownloadLinkParams(CuBaseModel):
     filename: str = Field(description="File object path in storage.")
-    version: str | None = Field(
-        default=None,
-        pattern=r"^[0-9a-f]{8}$",
-        description="Material content revision identifier.",
-    )
+    version: VersionType | None = None

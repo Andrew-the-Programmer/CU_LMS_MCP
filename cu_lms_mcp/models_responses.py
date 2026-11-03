@@ -85,10 +85,10 @@ class CourseSummaryItem(CuBaseModel):
     subject_id: SubjectId
     is_archived: bool
     category: CourseCategory
-    category_cover: CourseCategoryCover | None
-    participation_type: str | None
-    commit_level: str | None
-    blocker: CourseBlocker | None
+    commit_level: str | None = None
+    category_cover: CourseCategoryCover | None = None
+    participation_type: str | None = None
+    blocker: CourseBlocker | None = None
 
 
 class CourseSummaryByIdResponse(CourseSummaryItem):
