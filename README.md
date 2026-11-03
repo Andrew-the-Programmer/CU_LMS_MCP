@@ -11,7 +11,7 @@ MCP-сервер для сервиса Центрального Универси
 - недели курса;
 - материалы внутри недели: файлы, картинки, видео, аудио, текст;
 - домашние задания: описание и файлы;
-- тесты: вопросы и варианты ответов;
+- тесты: вопросы, варианты ответов и дедлайн;
 - ссылки на скачивание файлов.
 
 Что обычно лежит внутри недели:
@@ -81,7 +81,8 @@ poetry env info --executable
 
 | Инструмент | Что делает |
 | --- | --- |
-| `get_student_profile` | Профиль студента |
+| `get_lms_guide` | Краткая справка по LMS |
+| `get_student_profile` | Профиль студента и остаток ЛД |
 | `list_student_courses` | Список курсов, можно задать `limit`, `offset`, `state` |
 | `get_course_summary` | Информация о курсе |
 | `get_course_overview` | Недели курса и что в них лежит |
@@ -90,8 +91,6 @@ poetry env info --executable
 | `get_longread_materials` | Содержимое блока: материалы, ДЗ или тест |
 | `get_task` | ДЗ или тест |
 | `generate_content_download_link` | Ссылка на скачивание файла |
-
-Если в неделе лежит ДЗ или тест, сервер умеет открыть его отдельно.
 
 ## Тесты
 
@@ -120,5 +119,6 @@ poetry run pytest -v -s --log-cli-level=INFO
 ## Документация
 
 - OpenAPI-спека: [`api_docs.yaml`](api_docs.yaml)
+- Встроенная справка для агента: [`cu_lms_mcp/MCP_DOCS.md`](cu_lms_mcp/MCP_DOCS.md)
 - Для разработки: [`AGENT.md`](AGENT.md)
 - Интерактивная документация API: [открыть](https://cu-devs-collective.github.io/open-cu-services-sdk/api-docs/?url=https://raw.githubusercontent.com/cu-devs-collective/open-cu-services-sdk/spec/lmsapi/v0.1.0/spec/lmsapi/lmsapi.re.openapi.yaml#/)
