@@ -26,7 +26,7 @@ asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 addopts = "-ra -q"
-log_cli = false # change to true to see live-logs
+log_cli = false
 log_cli_level = "INFO"
 log_cli_format = "%(message)s"
 
