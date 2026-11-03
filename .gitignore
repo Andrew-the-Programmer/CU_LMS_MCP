@@ -1,0 +1,4 @@
+.env
+.qwen
+.pytest_cache
+__pycache__

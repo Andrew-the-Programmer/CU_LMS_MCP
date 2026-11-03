@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "cu-lms-mcp"
+version = "0.1.0"
+description = "MCP server exposing the Central University LMS API"
+authors = ["AndrewCh <andrey.chikin1223@gmail.com>"]
+readme = "README.md"
+packages = [{ include = "cu_lms_mcp" }]
+repository = "https://github.com/Andrew-the-Programmer/CU_LMS_MCP"
+
+[tool.poetry.dependencies]
+python = "^3.14"
+mcp = { extras = ["cli"], version = "^2.3.0" }
+httpx = "^0.28.1"
+pydantic = "^2.14.2"
+pydantic-settings = "^2.16.2"
+
+[tool.poetry.group.dev.dependencies]
+basedpyright = "^1.39.10"
+black = "^26.5.1"
+isort = "^8.0.1"
+pytest = "^9.2.0"
+pytest-asyncio = "^1.4.1.post1"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-ra -q"
+
+[tool.black]
+line-length = 80
+target-version = ['py314']
+
+[tool.isort]
+profile = "black"
+
+[tool.basedpyright]
