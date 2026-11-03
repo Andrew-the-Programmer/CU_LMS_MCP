@@ -63,10 +63,8 @@ poetry run python -m cu_lms_mcp.server
 ```yaml
 mcp_servers:
   cu_lms:
-    command: /абсолютный/путь/до/venv/bin/python
-    args:
-      - -m
-      - cu_lms_mcp.server
+    command: /path/to/poetry/venv/bin/python
+    args: ["-m", "cu_lms_mcp.server"]
     env:
       CU_LMS_SESSION_COOKIE: "сюда_вставь_cookie"
 ```
