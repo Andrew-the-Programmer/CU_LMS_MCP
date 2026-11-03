@@ -4,7 +4,11 @@ from typing import cast
 import pytest
 
 from cu_lms_mcp import server
-from cu_lms_mcp.models_params import ContentDownloadLinkParams
+from cu_lms_mcp.models_params import (
+    ContentDownloadLinkParams,
+    ListStudentCoursesParams,
+    LongreadMaterialsParams,
+)
 from cu_lms_mcp.models_responses import (
     CourseSummaryItem,
     CourseThemeItem,
@@ -43,7 +47,9 @@ async def t_course_theme(theme: CourseThemeItem) -> None:
 async def t_longread(longread: LongreadItem) -> None:
     logger.info("%s", longread.name)
     _ = await server.get_longread_summary(longread.id)
-    materials = await server.get_longread_materials(longread.id)
+    materials = await server.get_longread_materials(
+        longread.id, LongreadMaterialsParams(limit=1)
+    )
 
     for item in materials.items:
         await t_material(item)
@@ -67,7 +73,9 @@ async def t_material(item: LongreadMaterialItem) -> None:
 
 @pytest.mark.asyncio
 async def test_all_tools():
-    courses = await server.list_student_courses()
+    courses = await server.list_student_courses(
+        ListStudentCoursesParams(limit=1)
+    )
     assert courses.items, "no courses returned"
 
     logger.info("Courses count: %s", len(courses.items))
